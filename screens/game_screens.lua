@@ -39,6 +39,7 @@ local function load_objects_lua(game, screen_instance)
         game.selected_characters = {"SF3/Ryu", "SF3/Ken"} -- Default fallback
     end
 
+    print("Accessing stage object with key: '" .. game.selected_stage[1] .. "'")
     screen_instance.selected_stage_objects = {
         BaseActiveObject:new({
             game = game,
@@ -48,6 +49,8 @@ local function load_objects_lua(game, screen_instance)
     }
     game.active_stages = screen_instance.selected_stage_objects
 
+    print("Accessing character 1 object with key: '" .. game.selected_characters[1] .. "'")
+    print("Accessing character 2 object with key: '" .. game.selected_characters[2] .. "'")
     screen_instance.selected_character_objects = {
         BaseActiveObject:new({
             game = game,
@@ -75,6 +78,7 @@ local function load_objects_lua(game, screen_instance)
 
     screen_instance.life_bars = {}
     for _, p_obj in ipairs(screen_instance.selected_character_objects) do
+        print("Accessing LifeBar object with key: 'Reencor/LifeBar'")
         table.insert(screen_instance.life_bars, Gauge_Bar:new({
             game = game,
             dict = game.object_dict["Reencor/LifeBar"], -- Make sure this key exists
@@ -84,6 +88,7 @@ local function load_objects_lua(game, screen_instance)
 
     screen_instance.super_bars = {}
     for _, p_obj in ipairs(screen_instance.selected_character_objects) do
+        print("Accessing SuperBar object with key: 'Reencor/SuperBar'")
         table.insert(screen_instance.super_bars, Gauge_Bar:new({
             game = game,
             dict = game.object_dict["Reencor/SuperBar"], -- Make sure this key exists
@@ -251,7 +256,9 @@ function GameScreens.SinglePlayerCharacterSelectionScreen:new(game)
     screen.menu_character = {}
     for index = 1, #screen.character_found do
         local char_key = screen.character_found[index]
+        print("Attempting to get portrait path for character key: '" .. char_key .. "' from game.object_dict")
         local portrait_path = (game.object_dict[char_key] and game.object_dict[char_key].portrait) or "reencor/none"
+        print("Retrieved portrait path: '" .. (portrait_path or "nil") .. "' for character key: '" .. char_key .. "'")
         table.insert(screen.menu_character, Menu_Item:new({
             game = game,
             name = char_key,

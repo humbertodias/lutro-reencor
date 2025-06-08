@@ -329,7 +329,10 @@ function BaseActiveObject:draw()
     end
 
     for _, tex_info in ipairs(textures_to_draw) do
-        local img_obj_and_dims = self.game.image_dict and self.game.image_dict[tex_info.image_path]
+        local image_key_to_use = CommonFunctions.get_key_from_path(tex_info.image_path)
+        print("BaseActiveObject:draw - Original image path: '" .. tex_info.image_path .. "', Generated key: '" .. image_key_to_use .. "' for object: " .. (self.dict.name or "Unknown"))
+        local img_obj_and_dims = self.game.image_dict and self.game.image_dict[image_key_to_use]
+        if not img_obj_and_dims then print("BaseActiveObject:draw - Image NOT found for key: '" .. image_key_to_use .. "' from path: '" .. tex_info.image_path .. "'") end
 
         if img_obj_and_dims and img_obj_and_dims[1] then
             local img_obj = img_obj_and_dims[1] -- The Love2D Image object
