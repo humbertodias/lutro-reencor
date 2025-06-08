@@ -33,12 +33,22 @@ function InterfaceObjects.Menu_Item:new(args)
     item.game = args.game; item.name = args.name or "dummy"; item.pos = args.pos or {0,0,0}
     item.size = args.size or {100,100}; item.face = args.face or 1 -- Changed default face to 1
     item.func = args.func or nomatch; item.param = args.param; item.timer = 0
-    item.image_path = args.image or "reencor/none"; item.image = nil
-    if item.game and item.game.image_dict and item.game.image_dict[item.image_path] then
-         item.image = item.game.image_dict[item.image_path][1]
-    elseif item.game and item.game.assets and item.game.assets.getImage then
-        item.image = item.game.assets.getImage(item.image_path)
+    item.image_name = args.image or "reencor/none" -- Changed to image_name to reflect it's a path/raw key
+    item.image = nil
+
+    if item.game and item.game.image_dict then
+        local image_key = CommonFunctions.get_key_from_path(item.image_name)
+        print("Menu_Item:new - Original image path: '" .. item.image_name .. "', Generated key: '" .. image_key .. "'")
+        if item.game.image_dict[image_key] then
+            item.image = item.game.image_dict[image_key][1]
+            print("Menu_Item:new - Image found for key: '" .. image_key .. "'")
+        else
+            print("Menu_Item:new - Image NOT found for key: '" .. image_key .. "' from path: '" .. item.image_name .. "'")
+        end
+    elseif item.game and item.game.assets and item.game.assets.getImage then -- Fallback for other asset systems if any
+        item.image = item.game.assets.getImage(item.image_name)
     end
+
     item.image_offset = args.image_offset or {0,0,0}; item.image_size_override = args.size
     item.image_mirror = args.image_mirror or {false,false}
     item.image_tint_py = args.image_tint or {255,255,255,255} -- Store PyColor
@@ -50,7 +60,23 @@ end
 function InterfaceObjects.Menu_Item:selected() self.timer = 8 end
 function InterfaceObjects.Menu_Item:update(dt) if self.timer > 0 then self.timer = self.timer - (dt * 60) end end -- Use dt
 function InterfaceObjects.Menu_Item:draw()
-    if not self.image then return end
+    if not self.image then
+        -- Attempt to load image if not already loaded, using the key generation
+        if self.game and self.game.image_dict and self.image_name then
+            local image_key = CommonFunctions.get_key_from_path(self.image_name)
+            -- This print was in :new, adding a variant for :draw if attempting reload
+            -- print("Menu_Item:draw - Original image path: " .. self.image_name .. ", Generated key: " .. image_key)
+            if self.game.image_dict[image_key] then
+                self.image = self.game.image_dict[image_key][1]
+                -- print("Menu_Item:draw - Image loaded on draw for key: " .. image_key)
+            else
+                -- print("Menu_Item:draw - Image still NOT found for key: " .. image_key)
+                return -- Still no image, cannot draw
+            end
+        else
+            return -- No image and no way to load it
+        end
+    end
     local x = self.pos[1] + (self.draw_shake[1] or 0)
     local y = self.pos[2] + (self.draw_shake[2] or 0)
     local w = self.image:getWidth(); local h = self.image:getHeight()

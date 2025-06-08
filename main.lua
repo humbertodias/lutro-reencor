@@ -77,48 +77,34 @@ function Game.loadAssets()
     Game.sound_dict = {}
     Game.font_dict = {} -- For Love2D Font objects
 
-    local assets_path = "assets"
+    Game.assets_path = "Assets" -- Changed "assets" to "Assets"
 
-    local function get_key_from_path(filepath_in_assets)
-        local parts = {}
-        for part in string.gmatch(filepath_in_assets, "[^/\\]+") do table.insert(parts, part) end
-
-        local key
-        if #parts >= 2 then
-            local name_ext = parts[#parts]
-            local folder = parts[#parts-1]
-            local name = name_ext:match("(.+)%..+$") or name_ext
-            key = folder .. "/" .. name
-        elseif #parts == 1 then
-            local name_ext = parts[1]
-            key = name_ext:match("(.+)%..+$") or name_ext
-        else
-            key = filepath_in_assets -- Fallback
-        end
-        -- print("Generated asset key: " .. key .. " from path: " .. filepath_in_assets)
-        return key
-    end
+    --[[ Function get_key_from_path moved to CommonFunctions module ]]
 
     local function load_item(item_path_in_assets)
-        local file_info = love.filesystem.getInfo(assets_path .. "/" .. item_path_in_assets)
+        print("Attempting to load item: " .. Game.assets_path .. "/" .. item_path_in_assets)
+        local file_info = love.filesystem.getInfo(Game.assets_path .. "/" .. item_path_in_assets)
+        if file_info then print("Found item: " .. item_path_in_assets .. ", type: " .. file_info.type) else print("Failed to get info for: " .. Game.assets_path .. "/" .. item_path_in_assets) end
         if not file_info or file_info.type ~= "file" then return end
 
         local ext = string.match(item_path_in_assets, "%.([^.]+)$")
         if not ext then return end
         ext = string.lower(ext)
 
-        local full_fs_path = assets_path .. "/" .. item_path_in_assets -- Used for love.filesystem calls
-        local key = get_key_from_path(item_path_in_assets)
+        local full_fs_path = Game.assets_path .. "/" .. item_path_in_assets -- Used for love.filesystem calls
+        local key = CommonFunctions.get_key_from_path(item_path_in_assets) -- Use CommonFunctions
 
         if ext == "png" or ext == "jpg" or ext == "jpeg" then
             local img = Renderer.loadImage(full_fs_path) -- Renderer.loadImage uses love.graphics.newImage
             if img then
                 Game.image_dict[key] = {img, {img:getWidth(), img:getHeight()}}
+                print("Loaded image with key: '" .. key .. "' from path: '" .. full_fs_path .. "'")
             end
         elseif ext == "wav" or ext == "ogg" or ext == "mp3" then
             local success, snd = pcall(love.audio.newSource, full_fs_path, "static")
             if success then
                 Game.sound_dict[key] = snd
+                print("Loaded sound with key: '" .. key .. "' from path: '" .. full_fs_path .. "'")
             else
                 print("Error loading sound:", full_fs_path, snd)
             end
@@ -148,6 +134,15 @@ function Game.loadAssets()
                         merged_data.boxes[box_type] = CommonFunctions.merge_tables(default_box_content, merged_data.boxes[box_type] or {})
                     end
                     Game.object_dict[key] = merged_data
+                    print("Loaded JSON object with key: '" .. key .. "' from path: '" .. full_fs_path .. "'")
+                    print("---- Merged JSON data for key: " .. key .. " ----")
+                    if merged_data.type then print("Type: " .. merged_data.type) end
+                    if merged_data.name then print("Name: " .. merged_data.name) end
+                    if merged_data.portrait then print("Portrait path: " .. merged_data.portrait) end
+                    if merged_data.states and merged_data.states.Stand then print("Has Stand state: true") else print("Has Stand state: false or states missing") end
+                    if merged_data.animations and merged_data.animations.Stand_anim then print("Has Stand_anim: true") else print("Has Stand_anim: false or animations missing") end
+                    if merged_data.boxes and merged_data.boxes.collision_box then print("Has collision_box: true") else print("Has collision_box: false or boxes missing") end
+                    print("---- End Merged JSON for key: " .. key .. " ----")
                 else
                     print("Error decoding JSON:", full_fs_path, err)
                 end
@@ -164,18 +159,22 @@ function Game.loadAssets()
     end
 
     local function walk_dir(folder_in_assets)
-        local items_in_dir = love.filesystem.getDirectoryItems(assets_path .. "/" .. folder_in_assets)
+        print("Walking directory: " .. Game.assets_path .. "/" .. folder_in_assets)
+        local items_in_dir = love.filesystem.getDirectoryItems(Game.assets_path .. "/" .. folder_in_assets)
         for _, item_name in ipairs(items_in_dir) do
             local current_path_in_assets = folder_in_assets .. (folder_in_assets == "" and "" or "/") .. item_name
-            local item_info = love.filesystem.getInfo(assets_path .. "/" .. current_path_in_assets)
+            print("Checking item in dir: " .. item_name .. " at path: " .. Game.assets_path .. "/" .. current_path_in_assets)
+            local item_info = love.filesystem.getInfo(Game.assets_path .. "/" .. current_path_in_assets)
             if item_info then
+                print("Item info: type=" .. item_info.type .. ", size=" .. (item_info.size or "N/A"))
                 if item_info.type == "directory" then
                     walk_dir(current_path_in_assets)
                 elseif item_info.type == "file" then
                     load_item(current_path_in_assets)
                 end
             else
-                print("Warning: Could not get info for asset item: " .. current_path_in_assets)
+                print("Could not get item_info for: " .. current_path_in_assets)
+                print("Warning: Could not get info for asset item: " .. current_path_in_assets) -- Kept original warning too
             end
         end
     end
@@ -184,10 +183,10 @@ function Game.loadAssets()
 
     -- Load font characters (as in original Python's get_dictionaries)
     local font_path_key = "Util/unispace bd" -- Key derived from "Util/unispace bd.ttf"
-    local font_asset_path = "assets/Util/unispace bd.ttf" -- Actual path
+    local font_asset_path = Game.assets_path .. "/Util/unispace bd.ttf" -- Actual path
     if not love.filesystem.getInfo(font_asset_path) then
         -- Fallback if it was not moved under assets/Util but e.g. assets/fonts/
-        local alternative_font_path = "assets/fonts/unispace bd.ttf"
+        local alternative_font_path = Game.assets_path .. "/fonts/unispace bd.ttf"
         if love.filesystem.getInfo(alternative_font_path) then
             font_asset_path = alternative_font_path
             font_path_key = "fonts/unispace bd" -- Update key if path changes
@@ -209,6 +208,7 @@ function Game.loadAssets()
                 local char_img_canvas = Renderer.loadFontCharacterAsImage(main_font_obj, char, 200,200,200)
                 if char_img_canvas then
                     Game.image_dict["font " .. char] = {char_img_canvas, {char_img_canvas:getWidth(), char_img_canvas:getHeight()}}
+                    print("Loaded font character with key: 'font " .. char .. "'")
                 end
             end
         else
@@ -437,6 +437,11 @@ function love.draw()
     love.graphics.setCanvas(Game.internal_canvas)
     love.graphics.clear() -- Clear the internal canvas
 
+        -- Test draw red rectangle to internal canvas
+        love.graphics.setColor(1, 0, 0, 1) -- Bright red
+        love.graphics.rectangle("fill", 0, 0, Game.internal_resolution[1] / 4, Game.internal_resolution[2] / 4) -- Top-left quadrant of canvas
+        love.graphics.setColor(1, 1, 1, 1) -- Reset color
+
         if ScreenManager.currentScreen and ScreenManager.currentScreen.draw then
             ScreenManager.currentScreen:draw()
         else
@@ -450,9 +455,22 @@ function love.draw()
     local scale_y = love.graphics.getHeight() / Game.internal_resolution[2]
     love.graphics.draw(Game.internal_canvas, 0,0, 0, scale_x, scale_y)
 
+    love.graphics.setColor(1, 1, 0, 1) -- Yellow color for camera stats
+    love.graphics.print("Cam X: " .. string.format("%.2f", Game.camera.x), 10, 50)
+    love.graphics.print("Cam Y: " .. string.format("%.2f", Game.camera.y), 10, 70)
+    love.graphics.print("Cam Zoom: " .. string.format("%.2f", Game.camera.zoom), 10, 90)
+    if Game.camera_focus_point then
+        love.graphics.print("Focus X: " .. string.format("%.2f", Game.camera_focus_point[1]), 10, 110)
+        love.graphics.print("Focus Y: " .. string.format("%.2f", Game.camera_focus_point[2]), 10, 130)
+        love.graphics.print("Focus Z (Zoom): " .. string.format("%.2f", Game.camera_focus_point[3]), 10, 150)
+    end
+    love.graphics.print("Current Screen: " .. (ScreenManager.currentScreen and ScreenManager.currentScreen.screen_name or "None"), 10, 170)
+    love.graphics.setColor(1, 1, 1, 1) -- Reset color
+
     love.graphics.setColor(0,1,0,1)
     love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
-    love.graphics.print("Current Screen: " .. (ScreenManager.currentScreen and ScreenManager.currentScreen.screen_name or "None"), 10, 30)
+    -- The original current screen print was at y=30, new one is at y=170, so it's fine.
+    -- love.graphics.print("Current Screen: " .. (ScreenManager.currentScreen and ScreenManager.currentScreen.screen_name or "None"), 10, 30)
     love.graphics.setColor(1,1,1,1)
 end
 
