@@ -8,3 +8,6 @@ endif
 
 run/love:
 	$(LOVE) .
+
+clean:
+	find . -name .DS_Store -delete
