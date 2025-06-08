@@ -218,7 +218,7 @@ function InterfaceObjects.Gauge_Bar:draw()
     local perc=math.max(0, math.min(1, cur_val/max_val))
     local color_py = (bar_def.blink and bar_def.blink > 0) and gradient_color_py(self.timer,bar_def.blink,bar_def.color[1],bar_def.color[2]) or gradient_color_py(cur_val,max_val,bar_def.color[1],bar_def.color[2])
 
-    local start_x_rel = bar_def.start[1]; local end_x_rel = bar_def.end[1]; local y_pos = bar_def.start[2]
+    local start_x_rel = bar_def.start[1]; local end_x_rel = bar_def['end'][1]; local y_pos = bar_def.start[2]
     local bar_full_len = math.abs(end_x_rel - start_x_rel)
     local current_bar_len = bar_full_len * perc
 

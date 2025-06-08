@@ -139,7 +139,24 @@ local function table_intersection_check(t1, t2)
     for _,v in ipairs(t2) do if s1[v] then return true end end; return false
 end
 CommonFunctions.table_intersection_check = table_intersection_check
-local function merge_tables(base, override) local nt={}; for k,v in pairs(base or {}) do nt[k]=v end if override then for k,v in pairs(override) do nt[k]=v end end return nt end
+--local function merge_tables(base, override) local nt={}; for k,v in pairs(base or {}) do nt[k]=v end if override then for k,v in pairs(override) do nt[k]=v end end return nt end
+-- TODO: MINE
+local function merge_tables(base, override)
+    local nt = {}
+
+    base = type(base) == "table" and base or {}
+    override = type(override) == "table" and override or {}
+
+    for k, v in pairs(base) do
+        nt[k] = v
+    end
+
+    for k, v in pairs(override) do
+        nt[k] = v
+    end
+
+    return nt
+end
 CommonFunctions.merge_tables = merge_tables
 
 function CommonFunctions.get_command(obj, current_inputs_list)

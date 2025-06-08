@@ -125,8 +125,22 @@ function Game.loadAssets()
         elseif ext == "json" then
             local content = love.filesystem.read(full_fs_path)
             if content then
-                local success, data = json.decode(content) -- Use the loaded dkjson library
-                if success then
+                -- local success, data = json.decode(content) -- Use the loaded dkjson library
+                -- if success then
+                --     local base_dummy = CommonFunctions.dummy_json
+                --     local merged_data = CommonFunctions.merge_tables(base_dummy, data)
+                --     merged_data.boxes = CommonFunctions.merge_tables(base_dummy.boxes, data.boxes or {})
+                --     for box_type, default_box_content in pairs(base_dummy.boxes) do
+                --         merged_data.boxes[box_type] = CommonFunctions.merge_tables(default_box_content, merged_data.boxes[box_type] or {})
+                --     end
+                --     Game.object_dict[key] = merged_data
+                -- else
+                --     print("Error decoding JSON:", full_fs_path, data)
+                -- end
+                -- TODO: MINE
+
+                local data, pos, err = json.decode(content)
+                if data then
                     local base_dummy = CommonFunctions.dummy_json
                     local merged_data = CommonFunctions.merge_tables(base_dummy, data)
                     merged_data.boxes = CommonFunctions.merge_tables(base_dummy.boxes, data.boxes or {})
@@ -135,8 +149,9 @@ function Game.loadAssets()
                     end
                     Game.object_dict[key] = merged_data
                 else
-                    print("Error decoding JSON:", full_fs_path, data)
+                    print("Error decoding JSON:", full_fs_path, err)
                 end
+
             else
                 print("Error reading JSON file:", full_fs_path)
             end
@@ -352,6 +367,8 @@ end
 --------------------------------------------------------------------------------
 
 function love.load()
+    if arg[#arg] == "-debug" then require("mobdebug").start() end
+
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.window.setTitle("Reencor Remake - Love2D")
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
@@ -359,7 +376,8 @@ function love.load()
     Game.resolution = {love.graphics.getWidth(), love.graphics.getHeight()}
     Game.internal_resolution = {1280, 800}
     Game.frame_rate = 60
-    love.timer.setStep(1/Game.frame_rate) -- For fixed update if desired, or use dt freely
+    -- TODO: MINE
+    --love.timer.setStep(1/Game.frame_rate) -- For fixed update if desired, or use dt freely
 
     Game.camera = Renderer.Camera:new(0.1)
     Game.internal_canvas = love.graphics.newCanvas(Game.internal_resolution[1], Game.internal_resolution[2])

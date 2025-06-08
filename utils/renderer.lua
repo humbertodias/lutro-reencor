@@ -1,5 +1,7 @@
 -- utils/renderer.lua
 
+local CommonFunctions = require("utils.common_functions")
+
 local Renderer = {}
 
 -- This table will store loaded images (Love2D Image objects)

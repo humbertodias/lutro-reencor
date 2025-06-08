@@ -3,7 +3,7 @@
 -- Placeholder for dependencies, assuming they will be translated/available
 local BaseActiveObject = require("objects.base_active_object") -- Assuming path
 -- local reset_CharacterActiveObject = require("objects.active_objects_utils") -- Assuming a utility file for this
-local InterfaceObjects = require("screens.interface_objects") -- Assuming path
+local InterfaceObjects = require("ui.interface_objects") -- Assuming path
 local Menu_Item = InterfaceObjects.Menu_Item
 local Menu_Item_String = InterfaceObjects.Menu_Item_String
 local Menu_Selector = InterfaceObjects.Menu_Selector
