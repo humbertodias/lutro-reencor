@@ -441,4 +441,25 @@ CommonFunctions.function_dict = {
     other_get_state=CommonFunctions.object_other_get_state, trigg_state=CommonFunctions.object_trigger_state, random_state=CommonFunctions.object_random_state,
 }
 
+
+CommonFunctions.get_key_from_path=function(filepath_in_assets)
+        local parts = {}
+        for part in string.gmatch(filepath_in_assets, "[^/\\]+") do table.insert(parts, part) end
+
+        local key
+        if #parts >= 2 then
+            local name_ext = parts[#parts]
+            local folder = parts[#parts-1]
+            local name = name_ext:match("(.+)%..+$") or name_ext
+            key = folder .. "/" .. name
+        elseif #parts == 1 then
+            local name_ext = parts[1]
+            key = name_ext:match("(.+)%..+$") or name_ext
+        else
+            key = filepath_in_assets -- Fallback
+        end
+        -- print("Generated asset key: " .. key .. " from path: " .. filepath_in_assets)
+        return key
+    end
+
 return CommonFunctions
