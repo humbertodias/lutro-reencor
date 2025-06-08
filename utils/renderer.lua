@@ -60,10 +60,16 @@ end
 -- The original font_texture created a texture for each character.
 -- Love2D's approach is to use love.graphics.newFont and print strings.
 -- If individual character images are strictly needed (as per original design):
-function Renderer.loadFontCharacterAsImage(font_obj, character_string, r,g,b) -- color components 0-255
-    local char_key = font_obj:getPath() .. "_" .. font_obj:getSize() .. "_" .. character_string .. "_" .. r ..g ..b
-    if image_cache[char_key] then return image_cache[char_key] end
+function Renderer.loadFontCharacterAsImage(font_obj, character_string, r, g, b)
+    -- Construção da chave com base nos metadados fornecidos
+--    local char_key = font_obj.path .. "_" .. font_obj.size .. "_" .. character_string .. "_" .. r .. g .. b
+    local char_key = character_string .. "_" .. r .. g .. b
 
+    if image_cache[char_key] then
+        return image_cache[char_key]
+    end
+
+--    local text_obj = love.graphics.newText(font_obj.font, character_string)
     local text_obj = love.graphics.newText(font_obj, character_string)
     local w, h = text_obj:getDimensions()
     if w == 0 or h == 0 then return nil end -- Cannot create empty canvas
@@ -72,29 +78,36 @@ function Renderer.loadFontCharacterAsImage(font_obj, character_string, r,g,b) --
     canvas:setFilter("nearest", "nearest")
     love.graphics.setCanvas(canvas)
     love.graphics.clear()
-    love.graphics.setColor(r/255, g/255, b/255, 1)
+    love.graphics.setColor(r / 255, g / 255, b / 255, 1)
     love.graphics.draw(text_obj, 0, 0)
     love.graphics.setCanvas()
-    love.graphics.setColor(1,1,1,1)
+    love.graphics.setColor(1, 1, 1, 1)
 
     image_cache[char_key] = canvas
-    return canvas -- Return the canvas (which is a Drawable and Texture)
+    return canvas
 end
+
 
 -- More common Love2D font handling:
 function Renderer.loadFont(font_path, size)
     local key = font_path .. "_" .. size
     if font_cache[key] then return font_cache[key] end
+
     local success, font_or_error = pcall(love.graphics.newFont, font_path, size)
-    if success then
-        font_or_error:setFilter("nearest", "nearest")
-        font_cache[key] = font_or_error
-        return font_or_error
-    else
+    if not success then
         print("Error loading font:", font_path, font_or_error)
         return nil
     end
+
+    local font = font_or_error
+    font:setFilter("nearest", "nearest")
+
+    font_cache[key] = font
+    return font
 end
+
+
+
 
 --------------------------------------------------------------------------------
 -- Drawing Functions

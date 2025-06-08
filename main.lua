@@ -183,18 +183,21 @@ function Game.loadAssets()
 
     -- Load font characters (as in original Python's get_dictionaries)
     local font_path_key = "Util/unispace bd" -- Key derived from "Util/unispace bd.ttf"
-    local font_asset_path = Game.assets_path .. "/Util/unispace bd.ttf" -- Actual path
-    if not love.filesystem.getInfo(font_asset_path) then
+    local relative_font_path = "Util/unispace bd.ttf"
+    local font_asset_path = relative_font_path
+
+    if not love.filesystem.getInfo(relative_font_path) then
         -- Fallback if it was not moved under assets/Util but e.g. assets/fonts/
-        local alternative_font_path = Game.assets_path .. "/fonts/unispace bd.ttf"
-        if love.filesystem.getInfo(alternative_font_path) then
-            font_asset_path = alternative_font_path
-            font_path_key = "fonts/unispace bd" -- Update key if path changes
+        relative_font_path = "fonts/unispace bd.ttf"
+        if love.filesystem.getInfo(relative_font_path) then
+            font_asset_path = relative_font_path
+            font_path_key = "fonts/unispace bd"
         else
             print("Warning: Main font 'unispace bd.ttf' not found at expected paths.")
             font_asset_path = nil
         end
     end
+
 
     if font_asset_path then
         local font_size = 60
