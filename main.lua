@@ -24,7 +24,7 @@ function love.load()
 end
 
 function love.draw()
-    -- love.graphics.clear(0.1, 0.1, 0.1, 1, 1, 0) -- Disabled for debugging
+    love.graphics.clear(0.1, 0.1, 0.1, 1) -- Re-enabled color clearing
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.rectangle("fill", 300, 200, 100, 100)
