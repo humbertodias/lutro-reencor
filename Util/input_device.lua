@@ -12,7 +12,7 @@ function InputDevice:new(game, team, index, mode)
     mode = mode or "none"
 
     self.key = {
-        {79}, {80}, {82}, {81}, {8}, {26}, {20}, {7}, {22}, {4}, {21, 92}, {21}, {116}
+        {"right"}, {"left"}, {"up"}, {"down"}, {"backspace"}, {"w"}, {"q"}, {"d"}, {"s"}, {"a"}, {"r", "kp5"}, {"r"}, {"pagedown"}
     }
 
     self.joystick_name_mapping = {
