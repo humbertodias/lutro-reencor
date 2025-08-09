@@ -106,36 +106,11 @@ function BaseActiveObject:new(params)
 end
 
 function BaseActiveObject:update(dt)
-    if not self.self_main_object then
-        self.self_main_object = common_functions.get_object_per_team(self.game.object_list, self.team, false)
-    end
-    if not self.other_main_object then
-        self.other_main_object = common_functions.get_object_per_team(self.game.object_list, self.team, true)
-    end
-
-    -- Update logic will be implemented here, translating from the Python version.
-    -- This is a complex function and will require careful translation of all the game logic.
-    -- For now, this is a placeholder.
+    -- ...
 end
 
 function BaseActiveObject:draw(screen)
-    -- Drawing logic will be implemented here, using the renderer module.
-    -- For now, this is a placeholder.
-    local image_to_draw = self.game.image_dict[self.image]
-    if image_to_draw then
-        local x = self.pos[1] - (self.image_offset[1] * (self.face < 0 and 1 or -1)) - (self.face < 0 and 0 or self.image_size[1] * self.scale)
-        local y = self.pos[2] - (-self.image_offset[2])
-        screen:draw_texture(
-            image_to_draw[1],
-            {x + self.draw_shake[1], y + self.draw_shake[2], self.pos[3]},
-            self.image_size,
-            {self.face > 0 and not self.image_mirror[1], self.image_mirror[2]},
-            self.image_tint,
-            self.image_angle,
-            self.image_repeat,
-            self.image_glow
-        )
-    end
+    -- ...
 end
 
 return BaseActiveObject

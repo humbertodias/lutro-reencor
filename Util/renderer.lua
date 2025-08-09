@@ -1,5 +1,9 @@
 local Renderer = {}
 
+function Renderer.set_projection(fov, aspect, near, far)
+    love.graphics.setProjection(fov, aspect, near, far)
+end
+
 function Renderer.load_image_path(path)
     local success, image = pcall(love.graphics.newImage, path)
     if success then
@@ -71,13 +75,14 @@ function Camera:update(pos)
     self.pos[1] = self.pos[1] + (self.target[1] - self.pos[1]) * self.smoothness
     self.pos[2] = self.pos[2] + (self.target[2] - self.pos[2]) * self.smoothness
     self.pos[3] = self.pos[3] + (self.target[3] - self.pos[3]) * self.smoothness
-
-    -- In LÖVE 2D, camera is handled by love.graphics.translate, love.graphics.scale, etc.
-    -- This will be adapted in the main draw loop.
 end
 
 function Camera:apply()
-    love.graphics.translate(-self.pos[1], -self.pos[2])
+    love.graphics.lookAt(
+        self.pos[1], self.pos[2], self.pos[3],
+        self.pos[1], self.pos[2], self.pos[3] - 100,
+        0, 1, 0
+    )
 end
 
 local Screen = {}
