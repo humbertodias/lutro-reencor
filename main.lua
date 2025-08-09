@@ -46,8 +46,8 @@ function love.load()
     game.show_inputs = false
 
     game.player_number = 2
-    game.selected_characters = {"ryu SF3", "ryu SF3"}
-    game.selected_stage = {"trining stage"}
+    game.selected_characters = {"SF3/Ryu", "SF3/Ken"}
+    game.selected_stage = {"Reencor/Training"}
 
     game.input_device_list = {}
     init_input_devices()
@@ -63,63 +63,45 @@ function love.load()
     next_screen({"ComboTrialScreen"})
 end
 
--- ... (the rest of the file is the same as before)
-
-function love.joystickadded(joystick)
-    table.insert(game.input_device_list, input_device.InputDevice:new(game, #game.input_device_list + 1, joystick:getID(), "joystick"))
-end
-
-function load_assets(dir)
-    local items = love.filesystem.getDirectoryItems(dir)
-    for _, item in ipairs(items) do
-        local full_path = dir .. "/" .. item
-        if love.filesystem.getInfo(full_path).type == "directory" then
-            load_assets(full_path)
+function love.update(dt)
+    if game.current_screen and game.current_screen.update then
+        game.current_screen:update(dt)
+    elseif not game.current_screen then
+        if #game.screen_sequence > 0 then
+            local next_screen_name = table.remove(game.screen_sequence)
+            if game_screens[next_screen_name] then
+                game.current_screen = game_screens[next_screen_name]:new(game, unpack(game.screen_parameters))
+                game.screen_parameters = {}
+            else
+                print("Error: screen not found: " .. tostring(next_screen_name))
+            end
         else
-            local ext = item:match("^.+(%..+)$")
-            if ext then ext = ext:sub(2):lower() end
+            love.event.quit()
+        end
+    end
 
-            local key = full_path:gsub("Assets/", ""):gsub("%..+$", "")
-            print("Loading asset:", key, ext)
-
-            if ext == "png" or ext == "jpg" or ext == "jpeg" then
-                local img, size = renderer.Renderer.load_image_path(full_path)
-                if img then
-                    game.image_dict[key] = {img, size}
-                end
-            elseif ext == "wav" or ext == "ogg" or ext == "mp3" then
-                local sound = love.audio.newSource(full_path, "static")
-                if sound then
-                    game.sound_dict[key] = sound
-                end
-            elseif ext == "json" then
-                local file_content = love.filesystem.read(full_path)
-                local success, data = pcall(json.decode, file_content)
-                if success then
-                    game.object_dict[key] = data
-                else
-                    print("Failed to load JSON: " .. full_path)
-                end
+    if game.input_device_list then
+        for _, dev in ipairs(game.input_device_list) do
+            if dev and dev.update then
+                dev:update(dt)
             end
         end
     end
+
+    if game.dummy_input_device and game.dummy_input_device.update then
+        game.dummy_input_device:update(dt)
+    end
+
+    if game.camera and game.camera.update then
+        game.camera:update(game.camera_focus_point)
+    end
 end
 
-function init_input_devices()
-    for i = 1, love.joystick.getJoystickCount() do
-        table.insert(game.input_device_list, input_device.InputDevice:new(game, i, i, "joystick"))
-    end
-    table.insert(game.input_device_list, input_device.InputDevice:new(game, #game.input_device_list + 1, nil, "keyboard"))
+function love.draw()
+    love.graphics.clear(0.1, 0.1, 0.1, 1, 1, 0)
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("fill", 300, 200, 100, 100)
 end
 
-function next_screen(screen_sequence)
-    for _, screen_name in ipairs(screen_sequence) do
-        table.insert(game.screen_sequence, 1, screen_name)
-    end
-    if game.current_screen and game.current_screen.deinit then
-        game.current_screen:deinit()
-    end
-    game.current_screen = nil
-end
-
-game.next_screen = next_screen
+-- ... (the rest of the file is the same as before)
