@@ -57,7 +57,7 @@ function BaseActiveObject:new(params)
     self.boxes = self.dict.boxes
 
     self.frame = {0, 0}
-    self.repeat = 0
+    self.repeat_count = 0
     self.ignore_stop = false
     self.hold_on_stun = false
     self.hitstun = 0

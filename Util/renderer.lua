@@ -15,12 +15,13 @@ function Renderer.font_texture(font, text, color)
     return nil, {0, 0}
 end
 
-function Renderer.draw_texture(texture, pos, size, flip, tint, angle, repeat, glow, always_on_top, center_origin)
+function Renderer.draw_texture(texture, pos, size, flip, tint, angle, should_repeat, glow, always_on_top, center_origin)
     pos = pos or {0, 0, 0}
     size = size or {texture:getWidth(), texture:getHeight()}
     flip = flip or {false, false}
     tint = tint or {255, 255, 255, 255}
     angle = angle or {0, 0, 0}
+    should_repeat = should_repeat or false
 
     local x, y = pos[1], pos[2]
     local sx, sy = size[1] / texture:getWidth(), size[2] / texture:getHeight()
