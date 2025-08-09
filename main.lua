@@ -11,7 +11,6 @@ local game = {}
 
 function love.load()
     -- ... (love.load implementation)
-    renderer.Renderer.set_projection(90, love.graphics.getWidth() / love.graphics.getHeight(), 0.1, 1000.0)
 end
 
 function love.update(dt)

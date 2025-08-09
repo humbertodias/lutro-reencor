@@ -1,9 +1,5 @@
 local Renderer = {}
 
-function Renderer.set_projection(fov, aspect, near, far)
-    love.graphics.setProjection(fov, aspect, near, far)
-end
-
 function Renderer.load_image_path(path)
     local success, image = pcall(love.graphics.newImage, path)
     if success then
