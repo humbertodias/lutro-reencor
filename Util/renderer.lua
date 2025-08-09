@@ -100,6 +100,12 @@ function Screen:draw_rect(...)
 end
 
 function Screen:display()
+    table.sort(self.draw_list, function(a, b)
+        local z1 = (a[2] and a[2][2] and a[2][2][3]) or 0
+        local z2 = (b[2] and b[2][2] and b[2][2][3]) or 0
+        return z1 > z2
+    end)
+
     for _, call in ipairs(self.draw_list) do
         if call[1] == "texture" then
             Renderer.draw_texture(unpack(call[2]))
