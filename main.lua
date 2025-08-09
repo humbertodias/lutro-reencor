@@ -109,7 +109,7 @@ function load_assets(dir)
     local items = love.filesystem.getDirectoryItems(dir)
     for _, item in ipairs(items) do
         local full_path = dir .. "/" .. item
-        if love.filesystem.isDirectory(full_path) then
+        if love.filesystem.getInfo(full_path).type == "directory" then
             load_assets(full_path)
         else
             local ext = item:match("^.+(%..+)$")
@@ -141,7 +141,6 @@ function load_assets(dir)
 end
 
 function init_input_devices()
-    love.joystick.load()
     for i = 1, love.joystick.getJoystickCount() do
         table.insert(game.input_device_list, input_device.InputDevice:new(game, i, i, "joystick"))
     end
