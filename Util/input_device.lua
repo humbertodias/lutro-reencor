@@ -1,5 +1,14 @@
 local common_functions = require("Util.common_functions")
 
+local function contains(tbl, val)
+    for _, v in ipairs(tbl) do
+        if v == val then
+            return true
+        end
+    end
+    return false
+end
+
 local InputDevice = {}
 InputDevice.__index = InputDevice
 
@@ -203,12 +212,12 @@ function InputDevice:get_press(raw_input)
     end
 
     for i = 1, 6 do
-        if love.util.contains(holded_buttons, "h_b" .. i) then
+        if contains(holded_buttons, "h_b" .. i) then
             self.press_charge[i] = self.press_charge[i] + 1
         else
             self.press_charge[i] = 0
         end
-        if self.press_charge[i] == 1 and love.util.contains(pressed_buttons, "p_b" .. i) then
+        if self.press_charge[i] == 1 and contains(pressed_buttons, "p_b" .. i) then
             -- This logic seems a bit off, but translating as is.
         end
         if self.press_charge[i] > 40 then
